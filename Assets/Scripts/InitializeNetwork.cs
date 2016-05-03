@@ -9,6 +9,7 @@ namespace UnityEngine.Networking
 //		public bool isPlayer1;
 		public GazeController player1;
 		public GazeController player2;
+		GameObject human;
 //		public NetworkManager manager;
 
 		// Runtime variable
@@ -44,6 +45,14 @@ namespace UnityEngine.Networking
 
 		void Update()
 		{
+		if (human == null &&
+			GameObject.FindGameObjectsWithTag ("Human") != null) {
+			foreach(GameObject humanObj in GameObject.FindGameObjectsWithTag ("Human"))
+			{
+				if (humanObj.GetComponent<Human>() != null)
+					human = humanObj;
+			}
+		}
 			if (Input.GetKey (KeyCode.R)) {
 				ResetGame ();
 			}
@@ -51,12 +60,10 @@ namespace UnityEngine.Networking
 
 		public void ResetGame()
 	{
-		Application.LoadLevel (Application.loadedLevel);
 		player1.GetComponent<Slug> ().Initialize ();
 		player2.GetComponent<Slug> ().Initialize ();
-		GameObject.FindGameObjectWithTag ("Human").GetComponent<Human> ().Initialize();
-		player1.ResetBalloon ();
-		player2.ResetBalloon ();
+		human.SendMessage("Initialize");
+		Application.LoadLevel (Application.loadedLevel);
 	}
 		
 	public void AttachPlayer(GazeController newGaze)

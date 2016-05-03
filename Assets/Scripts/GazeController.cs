@@ -26,7 +26,6 @@ public class GazeController : NetworkBehaviour {
 	void Start () {
 		DontDestroyOnLoad (this.gameObject);
 		GameObject.FindGameObjectWithTag ("NetworkManager").GetComponent<InitializeNetwork> ().AttachPlayer (this);
-
 		if (isLocalPlayer)
 		{
 			OculusCameraRig.enabled = true;
@@ -83,16 +82,16 @@ public class GazeController : NetworkBehaviour {
 
 	public void ResetBalloon ()
 	{
-		if (rightEye.childCount == 0) //give new balloon
-		{
-			Instantiate (slugBalloon);
-			Vector3 tempPos = slugBalloon.transform.localPosition;
-			Quaternion tempRot = slugBalloon.transform.localRotation;
-			Vector3 tempScale = slugBalloon.transform.localScale;
-			slugBalloon.transform.parent = rightEye;
-			slugBalloon.transform.localPosition = tempPos;
-			slugBalloon.transform.localRotation = tempRot;
-			slugBalloon.transform.localScale = tempScale;
-		}
+		GameObject curBalloon = GetComponentInChildren<StayUpright>().gameObject;
+		Destroy(curBalloon);
+		GameObject balloonInst = Instantiate (slugBalloon);
+		Vector3 tempPos = slugBalloon.transform.localPosition;
+		Quaternion tempRot = slugBalloon.transform.localRotation;
+		Vector3 tempScale = slugBalloon.transform.localScale;
+		balloonInst.transform.parent = rightEye;
+		balloonInst.transform.localPosition = tempPos;
+		balloonInst.transform.localRotation = tempRot;
+		balloonInst.transform.localScale = tempScale;
+
 	}
 }

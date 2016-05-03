@@ -6,7 +6,7 @@ public class Child : MonoBehaviour {
 	public BeautifulDissolves.Dissolve dissolve;
 	public SkinnedMeshRenderer kidMaterial;
 	public Transform teleDestination;
-	public Human human;
+	public GameObject human;
 	AudioSource[] audios;
 	Animator anim;
 
@@ -30,9 +30,6 @@ public class Child : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		origColor = kidMaterial.material.color;
-		if (GameObject.FindGameObjectWithTag ("Human") != null) {
-			human = GameObject.FindGameObjectWithTag ("Human").GetComponent<Human> ();
-		}
 		audios = GetComponents<AudioSource>();
 		anim = GetComponent<Animator>();
 		if (isStanding)
@@ -49,8 +46,12 @@ public class Child : MonoBehaviour {
 	// Update is called once per frame
 	void LateUpdate () {
 		if (human == null &&
-			GameObject.FindGameObjectWithTag ("Human") != null) {
-			human = GameObject.FindGameObjectWithTag ("Human").GetComponent<Human> ();
+			GameObject.FindGameObjectsWithTag ("Human") != null) {
+			foreach(GameObject humanObj in GameObject.FindGameObjectsWithTag ("Human"))
+			{
+				if (humanObj.GetComponent<Human>() != null)
+					human = humanObj;
+			}
 		}
 		HandlePostPoke ();
 		ControlState();
@@ -139,7 +140,7 @@ public class Child : MonoBehaviour {
 		gazeController.GazeRelease ();
 		gazeController = null;
 		targeted = true;
-		human.AddTarget(transform);
+		human.SendMessage("AddTarget", transform);
 	}
 
 	void AttachGazeController (GazeController newGaze)

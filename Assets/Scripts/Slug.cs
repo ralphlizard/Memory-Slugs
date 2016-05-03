@@ -7,7 +7,7 @@ public class Slug : MonoBehaviour {
 	public MeshRenderer slugMaterial2;
 	Color origColor;
 	public Color targetColor;
-	Human human;
+	GameObject human;
 	AudioSource[] audios;
 	Animator anim;
 
@@ -36,16 +36,17 @@ public class Slug : MonoBehaviour {
 		origColor = slugMaterial1.material.color;
 		anim = GetComponent<Animator> ();
 		dissolves = GetComponentsInChildren<BeautifulDissolves.Dissolve> ();
-		human = GameObject.FindGameObjectWithTag("Human").GetComponent<Human>();
 		audios = GetComponents<AudioSource>();
 		startPos = transform.position;
 		startRot = transform.rotation;
+		Initialize();
 	}
 
 	public void Initialize ()
 	{
 		poppedTime = 0;
-		gazeController = null;
+		anim.enabled = true;
+//		gazeController = null;
 		lookedAtDuration = 0;
 		startLookedAt = 0;
 		prevLookTime = 0;
@@ -57,6 +58,9 @@ public class Slug : MonoBehaviour {
 		transform.rotation = startRot;
 		teleportTime = 0;
 		GetComponent<GazeController> ().ResetBalloon();
+		GetComponent<GazeController>().GazeRelease();
+		GetComponent<Rigidbody>().isKinematic = true;
+		GetComponent<Rigidbody>().useGravity = false;
 	}
 
 	// Update is called once per frame
@@ -67,6 +71,14 @@ public class Slug : MonoBehaviour {
 			headLookController.targetObject = gazeController.gameObject;
 		}
 		*/
+		if (human == null &&
+			GameObject.FindGameObjectsWithTag ("Human") != null) {
+			foreach(GameObject humanObj in GameObject.FindGameObjectsWithTag ("Human"))
+			{
+				if (humanObj.GetComponent<Human>() != null)
+					human = humanObj;
+			}
+		}
 		if (teleported &&
 			Time.time - teleportTime >= gameOverTime)
 		{
@@ -162,16 +174,19 @@ public class Slug : MonoBehaviour {
 		poppedTime = Time.time;
 		GetComponentInChildren<BalloonPop>().Pop();
 		foreach (BeautifulDissolves.Dissolve dissolve in dissolves)
-			dissolve.TriggerDissolve ();
+		{
+			if (dissolve.gameObject.activeSelf)
+				dissolve.TriggerDissolve ();
+		}
 	}
 
 	void Activate()
 	{
-		this.tag = "Untagged";
+//		this.tag = "Untagged";
 		gazeController.GazeRelease ();
 		gazeController = null;
 		targeted = true;
-		human.AddTarget(transform);
+		human.SendMessage("AddTarget", transform);
 	}
 
 	void AttachGazeController (GazeController newGaze)
