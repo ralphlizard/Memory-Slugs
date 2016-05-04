@@ -16,6 +16,7 @@ public class Human : NetworkBehaviour {
 	Vector3 startPos;
 	Quaternion startRot;
 	public float angleThreshold = 5;
+	Transform prevTarget;
 
 	[SyncVar]
 	Transform curTarget;
@@ -84,9 +85,14 @@ public class Human : NetworkBehaviour {
 			anim.GetCurrentAnimatorStateInfo(0).IsName("human.idleStand"))
 			//standing around. find a target
 		{
-			if (targets[targetIndex] != null) //has a target queued
+			prevTarget = curTarget;
+			if (Network.isServer)
 			{
 				curTarget = targets[targetIndex];
+			}					
+				
+			if (prevTarget != curTarget)
+			{
 				agent.destination = curTarget.GetComponentInChildren<BalloonPop>().transform.position;
 				waiting = true;
 			}
